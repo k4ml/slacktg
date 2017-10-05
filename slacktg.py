@@ -54,6 +54,7 @@ def listen_slack():
                     continue
                 if 'subtype' in msg and msg['subtype'] == 'bot_message':
                     continue
+                if msg.get('hidden', False): continue
                 print(msg)
                 resp = sc.api_call('users.info', user=msg['user'])
                 if resp['ok']:
