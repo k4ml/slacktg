@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+name = "pypi"
+verify_ssl = true
+
+[packages]
+"python-telegram-bot" = "*"
+slackclient = "*"
+
+
+[dev-packages]
+
+[requires]
+python_version = "3"
