@@ -60,8 +60,8 @@ def listen_slack():
                 if resp['ok']:
                     user = resp['user']
                     channel = get_channel_info(msg['channel']) or 'N/A'
-                    print(user['name'], msg['text'])
-                    ret = bot.sendMessage(chat_id=chat_id, text='#%s:%s> %s' % (channel['name'], user['name'], msg['text']))
+                    print(user['name'], msg['text'], msg['ts'])
+                    ret = bot.sendMessage(chat_id=chat_id, text='#%s:%s:%s> %s' % (channel['name'], msg['ts'], user['name'], msg['text']))
             time.sleep(3)
     else:
         print("Connection Failed")
@@ -85,12 +85,23 @@ def listen_telegram():
                 print(update.message.chat.id, chat_id)
                 update.message.reply_text('invalid user')
                 continue
+
+            thread_ts = None
             reply = update.message.reply_to_message
             if reply:
-                channel_part = reply.text.split(':')[0]
+                reply_parts = reply.text.split(':')
+                channel_part = reply_parts[0]
                 if channel_part.strip().startswith('#'):
                     channel = channel_part
-            sc.api_call('chat.postMessage', channel=channel, text='From telegram: %s' % update.message.text)
+                thread_ts = reply_parts[1]
+
+            if thread_ts is not None:
+                sc.api_call('chat.postMessage', channel=channel, thread_ts=thread_ts,
+                            text='From telegram: %s' % update.message.text)
+            else:
+                sc.api_call('chat.postMessage', channel=channel,
+                            text='From telegram: %s' % update.message.text)
+
             print(update.message.text)
             print(update.message.reply_to_message)
             if 'posted to slack' not in update.message.text:
